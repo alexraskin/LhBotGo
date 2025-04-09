@@ -49,8 +49,6 @@ func (b *Bot) Start(commands []discord.ApplicationCommandCreate) error {
 		}()
 	}
 
-	go b.StartTasks(b.Ctx)
-
 	if err := b.Discord.OpenGateway(b.Ctx); err != nil {
 		slog.Error("failed to open gateway", "error", err)
 		return err

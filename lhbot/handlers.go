@@ -1,41 +1,36 @@
 package lhbot
 
 import (
-	"context"
 	"log/slog"
-	"math/rand"
-	"time"
+	"strings"
 
+	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
 )
 
-func (b *Bot) StartTasks(ctx context.Context) {
-	ticker := time.NewTicker(1 * time.Hour)
-	defer ticker.Stop()
-
-	b.statusTask(ctx)
-
-	for {
-		select {
-		case <-ctx.Done():
-			slog.Info("Shutting down status task")
+func MessageHandler(b *Bot) bot.EventListener {
+	return bot.NewListenerFunc(func(e *events.MessageCreate) {
+		if e.Message.Author.Bot {
 			return
-		case <-ticker.C:
-			b.statusTask(ctx)
 		}
-	}
+
+		// hardcoded because i'm lazy and these are the only channels that should be used for commands
+		if (e.Message.ChannelID == 935059381802905631 || e.Message.ChannelID == 932412270565269545) && strings.HasPrefix(e.Message.Content, "!") {
+			b.Discord.Rest().CreateMessage(e.Message.ChannelID, discord.MessageCreate{
+				Content: "Hey, I see you are trying to use the old command syntax. Please use `/` to start a command.",
+			})
+		}
+	})
 }
 
-func (b *Bot) statusTask(ctx context.Context) {
-	rand.New(rand.NewSource(time.Now().UnixNano()))
-	statuses := []string{
-		"Reinhardt", "Overwatch 2", "LhCloudy27",
-	}
-
-	b.Discord.SetPresence(ctx,
-		gateway.WithPlayingActivity(statuses[rand.Intn(len(statuses))]),
-		gateway.WithOnlineStatus(discord.OnlineStatusOnline),
-		gateway.WithAfk(false),
-	)
+func OnReady(b *Bot) bot.EventListener {
+	return bot.NewListenerFunc(func(e *events.Ready) {
+		if err := b.Discord.SetPresence(b.Ctx,
+			gateway.WithPlayingActivity("Overwatch 2"),
+			gateway.WithOnlineStatus(discord.OnlineStatusOnline)); err != nil {
+			slog.Error("Failed to set presence", slog.Any("err", err))
+		}
+	})
 }

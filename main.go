@@ -12,6 +12,8 @@ import (
 
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
+	"github.com/disgoorg/disgo/cache"
+	"github.com/disgoorg/disgo/gateway"
 
 	"github.com/alexraskin/LhBotGo/lhbot"
 	"github.com/alexraskin/LhBotGo/lhbot/commands"
@@ -43,7 +45,10 @@ func main() {
 	timeoutCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
-	discord, err := disgo.New(cfg.Bot.Token, bot.WithDefaultGateway())
+	discord, err := disgo.New(cfg.Bot.Token,
+		bot.WithGatewayConfigOpts(gateway.WithIntents(gateway.IntentGuilds, gateway.IntentGuildMessages, gateway.IntentMessageContent)),
+		bot.WithCacheConfigOpts(cache.WithCaches(cache.FlagGuilds)),
+	)
 	if err != nil {
 		slog.Error("Error while creating bot client", slog.Any("err", err))
 		return
@@ -63,7 +68,7 @@ func main() {
 
 	b := lhbot.New(cfg, version, goVersion, discord, mongoClient, httpClient, ctx)
 
-	b.Discord.AddEventListeners(commands.New(b))
+	b.Discord.AddEventListeners(commands.New(b), lhbot.MessageHandler(b), lhbot.OnReady(b))
 
 	if err := b.Start(commands.Commands); err != nil {
 		slog.Error("Failed to start bot", "error", err)
