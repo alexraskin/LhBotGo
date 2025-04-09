@@ -34,7 +34,7 @@ jobs:
 
   deploy:
     needs:
-      - build
+      - build-and-push-image
     runs-on: ubuntu-latest
     steps:
       - name: Deploy
