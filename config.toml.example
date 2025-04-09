@@ -1,0 +1,7 @@
+[bot]
+token = ""
+guild_ids = []
+sync_commands = true
+
+[mongo]
+uri = ""

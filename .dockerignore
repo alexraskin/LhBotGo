@@ -1,0 +1,6 @@
+config.toml
+config.toml.example
+LICENSE
+README.md
+.github/*
+.gitignore
