@@ -127,8 +127,6 @@ func (c *commands) onDog(_ discord.SlashCommandInteractionData, e *handler.Comma
 	})
 }
 
-///{"postLink":"https://redd.it/1juy6rc","subreddit":"me_irl","title":"me irl","url":"https://i.redd.it/auhfidu1uqte1.png","nsfw":false,"spoiler":false,"author":"Kuramarik","ups":113,"preview":["https://preview.redd.it/auhfidu1uqte1.png?width=108\u0026crop=smart\u0026auto=webp\u0026s=d0e4ea0694014abb1aa0e22d6199df7a3882addc","https://preview.redd.it/auhfidu1uqte1.png?width=216\u0026crop=smart\u0026auto=webp\u0026s=0f258519a1abe3cef737b8a5d540e3b706ce3f06","https://preview.redd.it/auhfidu1uqte1.png?width=320\u0026crop=smart\u0026auto=webp\u0026s=b73fd40bfdfe0cf0ee23606a8388227b11fa75a3"]}
-
 type MemeData struct {
 	PostLink string   `json:"postLink"`
 	Subreddit string   `json:"subreddit"`
