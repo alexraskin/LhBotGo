@@ -2,7 +2,10 @@ package commands
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
+	"log/slog"
+	"net/url"
 
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/handler"
@@ -24,6 +27,17 @@ var funCommands = discord.SlashCommandCreate{
 			Name:        "meme",
 			Description: "Get a random meme",
 		},
+		discord.ApplicationCommandOptionSubCommand{
+			Name:        "trump",
+			Description: "Get a random quote from Donald Trump",
+			Options: []discord.ApplicationCommandOption{
+				discord.ApplicationCommandOptionString{
+					Name:        "personalize",
+					Description: "Get a personalized Trump Quote",
+					Required:    false,
+				},
+			},
+		},
 	},
 }
 
@@ -35,9 +49,7 @@ type CatData struct {
 }
 
 func (c *commands) onCat(_ discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
-	apiURL := "https://cataas.com/cat?json=true"
-
-	resp, err := c.HTTPClient.Get(apiURL)
+	resp, err := c.HTTPClient.Get("https://cataas.com/cat?json=true")
 	if err != nil {
 		return e.CreateMessage(discord.MessageCreate{
 			Content: "An error occurred - KEKL",
@@ -84,9 +96,7 @@ type DogData struct {
 }
 
 func (c *commands) onDog(_ discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
-	apiURL := "https://dog.ceo/api/breeds/image/random"
-
-	resp, err := c.HTTPClient.Get(apiURL)
+	resp, err := c.HTTPClient.Get("https://dog.ceo/api/breeds/image/random")
 	if err != nil {
 		return e.CreateMessage(discord.MessageCreate{
 			Content: "An error occurred - KEKL",
@@ -128,22 +138,19 @@ func (c *commands) onDog(_ discord.SlashCommandInteractionData, e *handler.Comma
 }
 
 type MemeData struct {
-	PostLink string   `json:"postLink"`
+	PostLink  string   `json:"postLink"`
 	Subreddit string   `json:"subreddit"`
 	Title     string   `json:"title"`
 	URL       string   `json:"url"`
 	NSFW      bool     `json:"nsfw"`
-	Spoiler  bool     `json:"spoiler"`
+	Spoiler   bool     `json:"spoiler"`
 	Author    string   `json:"author"`
 	Ups       int      `json:"ups"`
 	Preview   []string `json:"preview"`
 }
 
-
 func (c *commands) onMeme(_ discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
-	apiURL := "https://meme-api.com/gimme"
-
-	resp, err := c.HTTPClient.Get(apiURL)
+	resp, err := c.HTTPClient.Get("https://meme-api.com/gimme")
 	if err != nil {
 		return e.CreateMessage(discord.MessageCreate{
 			Content: "An error occurred - KEKL",
@@ -178,5 +185,50 @@ func (c *commands) onMeme(_ discord.SlashCommandInteractionData, e *handler.Comm
 
 	return e.CreateMessage(discord.MessageCreate{
 		Embeds: []discord.Embed{embed},
+	})
+}
+
+type TrumpQuote struct {
+	Message string `json:"message"`
+}
+
+func (c *commands) onTrump(data discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
+	personalize := data.String("personalize")
+	var apiURL string
+	if len(personalize) > 0 {
+		apiURL = fmt.Sprintf("https://api.whatdoestrumpthink.com/api/v1/quotes/personalized?q=%s", url.QueryEscape(personalize))
+	} else {
+		apiURL = "https://api.whatdoestrumpthink.com/api/v1/quotes/random"
+	}
+
+	resp, err := c.HTTPClient.Get(apiURL)
+	if err != nil {
+		slog.Error("Error fetching Trump quote", "error", err)
+		return e.CreateMessage(discord.MessageCreate{
+			Content: "An error occurred - KEKL",
+			Flags:   discord.MessageFlagEphemeral,
+		})
+	}
+
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		slog.Error("Error reading response body", "error", err)
+		return e.CreateMessage(discord.MessageCreate{
+			Content: "An error occurred - KEKL",
+		})
+	}
+
+	var trumpQuote TrumpQuote
+	if err := json.Unmarshal(body, &trumpQuote); err != nil {
+		slog.Error("Error unmarshalling response body", "error", err)
+		return e.CreateMessage(discord.MessageCreate{
+			Content: "An error occurred - KEKL",
+		})
+	}
+
+	return e.CreateMessage(discord.MessageCreate{
+		Content: fmt.Sprintf("%s - Donald Trump", trumpQuote.Message),
 	})
 }

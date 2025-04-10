@@ -54,6 +54,7 @@ func New(b *lhbot.Bot) handler.Router {
 		r.SlashCommand("/cat", cmds.onCat)
 		r.SlashCommand("/dog", cmds.onDog)
 		r.SlashCommand("/meme", cmds.onMeme)
+		r.SlashCommand("/trump", cmds.onTrump)
 	})
 	return router
 }
