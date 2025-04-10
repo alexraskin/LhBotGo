@@ -50,6 +50,5 @@ func (c *commands) onInfo(_ discord.SlashCommandInteractionData, e *handler.Comm
 	end := "built with ❤️ by twizycat"
 	return e.CreateMessage(discord.MessageCreate{
 		Content: out + end,
-		Flags:   discord.MessageFlagEphemeral,
 	})
 }
