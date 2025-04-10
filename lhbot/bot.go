@@ -4,7 +4,6 @@ import (
 	"context"
 	"log/slog"
 	"net/http"
-	"time"
 
 	"github.com/alexraskin/LhBotGo/lhbot/database"
 	"github.com/disgoorg/disgo/bot"
@@ -18,7 +17,6 @@ type Bot struct {
 	GoVersion  string
 	Discord    bot.Client
 	Mongo      database.MongoClient
-	StartTime  time.Time
 	HTTPClient *http.Client
 	Ctx        context.Context
 }
@@ -31,7 +29,6 @@ func New(cfg Config, version string, goVersion string, discord bot.Client, mongo
 		GoVersion:  goVersion,
 		Discord:    discord,
 		Mongo:      mongo,
-		StartTime:  time.Now(),
 		HTTPClient: httpClient,
 		Ctx:        ctx,
 	}
