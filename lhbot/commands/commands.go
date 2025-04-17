@@ -14,6 +14,7 @@ var Commands = []discord.ApplicationCommandCreate{
 	overwatchCommands,
 	lhCloudyCommands,
 	funCommands,
+	helpCommand,
 }
 
 type commands struct {
@@ -26,6 +27,7 @@ func New(b *lhbot.Bot) handler.Router {
 	router := handler.New()
 	router.Use(middleware.Go)
 	router.SlashCommand("/info", cmds.onInfo)
+	router.SlashCommand("/help", cmds.onHelp)
 	router.Route("/lh", func(r handler.Router) {
 		r.SlashCommand("/guess", cmds.onGuess)
 		r.SlashCommand("/count", cmds.onCount)
