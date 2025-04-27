@@ -3,6 +3,7 @@ package commands
 import (
 	"bytes"
 	"fmt"
+	"log/slog"
 	"runtime"
 	"text/tabwriter"
 	"time"
@@ -15,9 +16,9 @@ import (
 
 var statsStartTime = time.Now()
 
-var infoCommand = discord.SlashCommandCreate{
-	Name:        "info",
-	Description: "Get some info about the bot",
+var statsCommand = discord.SlashCommandCreate{
+	Name:        "stats",
+	Description: "Get some stats about the bot",
 }
 
 func getDurationString(duration time.Duration) string {
@@ -29,13 +30,21 @@ func getDurationString(duration time.Duration) string {
 	)
 }
 
-func (c *commands) onInfo(_ discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
+func (c *commands) onStats(_ discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
 	stats := runtime.MemStats{}
 	runtime.ReadMemStats(&stats)
 
 	w := &tabwriter.Writer{}
 	buf := &bytes.Buffer{}
 
+	guesses, err := c.Bot.Mongo.CountGuesses(c.Bot.Ctx)
+	if err != nil {
+		slog.Error("Error getting guesses", "error", err)
+		return e.CreateMessage(discord.MessageCreate{
+			Content: "Error getting guesses",
+			Flags:   discord.MessageFlagEphemeral,
+		})
+	}
 	w.Init(buf, 0, 4, 0, ' ', 0)
 	fmt.Fprintf(w, "```\n")
 	fmt.Fprintf(w, "disgo: \t%s\n", disgo.Version)
@@ -43,6 +52,7 @@ func (c *commands) onInfo(_ discord.SlashCommandInteractionData, e *handler.Comm
 	fmt.Fprintf(w, "Uptime: \t%s\n", getDurationString(time.Since(statsStartTime)))
 	fmt.Fprintf(w, "Memory used: \t%s / %s (%s garbage collected)\n", humanize.Bytes(stats.Alloc), humanize.Bytes(stats.Sys), humanize.Bytes(stats.TotalAlloc))
 	fmt.Fprintf(w, "Concurrent tasks: \t%s\n", humanize.Comma(int64(runtime.NumGoroutine())))
+	fmt.Fprintf(w, "Number of Guesses: \t%d\n", guesses)
 	fmt.Fprintf(w, "```\n")
 	w.Flush()
 	out := buf.String()

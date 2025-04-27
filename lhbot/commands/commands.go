@@ -9,7 +9,7 @@ import (
 )
 
 var Commands = []discord.ApplicationCommandCreate{
-	infoCommand,
+	statsCommand,
 	guessCommands,
 	overwatchCommands,
 	lhCloudyCommands,
@@ -26,7 +26,7 @@ func New(b *lhbot.Bot) handler.Router {
 
 	router := handler.New()
 	router.Use(middleware.Go)
-	router.SlashCommand("/info", cmds.onInfo)
+	router.SlashCommand("/stats", cmds.onStats)
 	router.SlashCommand("/help", cmds.onHelp)
 	router.Route("/lh", func(r handler.Router) {
 		r.SlashCommand("/guess", cmds.onGuess)
