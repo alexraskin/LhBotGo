@@ -1,15 +1,11 @@
 package commands
 
 import (
-	"encoding/json"
-	"fmt"
-	"log/slog"
 	"math/rand"
 	"time"
 
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/handler"
-	"github.com/disgoorg/snowflake/v2"
 )
 
 var overwatchCommands = discord.SlashCommandCreate{
@@ -17,85 +13,10 @@ var overwatchCommands = discord.SlashCommandCreate{
 	Description: "Overwatch Commands",
 	Options: []discord.ApplicationCommandOption{
 		discord.ApplicationCommandOptionSubCommand{
-			Name:        "shatter",
-			Description: "Shatter another user",
-			Options: []discord.ApplicationCommandOption{
-				discord.ApplicationCommandOptionUser{
-					Name:        "user",
-					Description: "The user to shatter",
-					Required:    true,
-				},
-			},
-		},
-		discord.ApplicationCommandOptionSubCommand{
 			Name:        "reinquote",
 			Description: "Get a random Reinhardt quote",
 		},
 	},
-}
-
-func (c *commands) onShatter(data discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
-	var userID snowflake.ID
-	var err error
-
-	for _, option := range data.Options {
-		if option.Name == "user" {
-			var idStr string
-			if err := json.Unmarshal(option.Value, &idStr); err != nil {
-				slog.Error("Error unmarshalling user ID", "error", err)
-				return e.CreateMessage(discord.MessageCreate{
-					Content: "An error occurred - KEKL",
-				})
-			}
-			userID, err = snowflake.Parse(idStr)
-			if err != nil {
-				slog.Error("Error parsing user ID", "error", err)
-				return e.CreateMessage(discord.MessageCreate{
-					Content: "An error occurred - KEKL",
-				})
-			}
-			break
-		}
-	}
-
-	targetUser, ok := data.Resolved.Users[userID]
-	if !ok {
-		slog.Error("Could not resolve user from Discord API", "userID", userID)
-		return e.CreateMessage(discord.MessageCreate{
-			Content: "An error occurred - KEKL",
-		})
-	}
-
-	var lhCloudBlockMessages = []string{
-		"Blocked.. immune to your shatter!",
-		"LhCloudy is immune to your shatter!",
-		"Blocked - MTD",
-		"ez block... L + ratio",
-		"sr peak check?",
-	}
-
-	rand.New(rand.NewSource(time.Now().UnixNano()))
-
-	if targetUser.ID.String() == "127122091139923968" {
-		return e.CreateMessage(discord.MessageCreate{
-			Content: lhCloudBlockMessages[rand.Intn(len(lhCloudBlockMessages))],
-		})
-	}
-
-	options := []string{"hit", "miss", "was blocked by"}
-	choice := options[rand.Intn(len(options))]
-
-	var message string
-	switch choice {
-	case "hit":
-		message = fmt.Sprintf("Your shatter hit %s! 💥🔨", targetUser.Mention())
-	case "was blocked by":
-		message = fmt.Sprintf("Your shatter was blocked by %s, the enemy mercy typed MTD. 🧱", targetUser.Mention())
-	case "miss":
-		message = "You shattered no one, so it missed. Your team is now flaming you, and the enemy mercy typed MTD."
-	}
-
-	return e.CreateMessage(discord.MessageCreate{Content: message})
 }
 
 var reinQuotes = []string{

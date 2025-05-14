@@ -36,7 +36,6 @@ func New(b *lhbot.Bot) handler.Router {
 		r.SlashCommand("/latest", cmds.onLatest)
 	})
 	router.Route("/ow", func(r handler.Router) {
-		r.SlashCommand("/shatter", cmds.onShatter)
 		r.SlashCommand("/reinquote", cmds.onQuote)
 	})
 	router.Route("/lhcloudy", func(r handler.Router) {
