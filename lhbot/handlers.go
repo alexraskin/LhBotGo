@@ -71,7 +71,7 @@ func MessageHandler(b *Bot) bot.EventListener {
 		// hardcoded because i'm lazy and these are the only channels that should be used for commands
 		if (e.Message.ChannelID == 935059381802905631 || e.Message.ChannelID == 932412270565269545) && strings.HasPrefix(e.Message.Content, "!") {
 			b.Discord.Rest().CreateMessage(e.Message.ChannelID, discord.MessageCreate{
-				Content: "!shatter` is supported, but all other commands should use `/` instead",
+				Content: "`!shatter` is supported, but all other commands should use `/` instead",
 			})
 		}
 	})
