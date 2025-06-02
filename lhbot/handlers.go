@@ -49,11 +49,19 @@ func MessageHandler(b *Bot) bot.EventListener {
 				return
 			}
 
-			options := []string{"hit", "miss", "was blocked by"}
+			options := []string{"backline deleted", "interrupted mid-shatter", "spawn", "landed...", "hit", "was blocked by", "miss"}
 			choice := options[rand.Intn(len(options))]
 
 			var message string
 			switch choice {
+			case "backline deleted":
+				message = fmt.Sprintf("You shattered %s’s entire backline. 💀", target.Mention())
+			case "interrupted mid-shatter":
+				message = fmt.Sprintf("%s slept you mid-shatter. 💤", target.Mention())
+			case "spawn":
+				message = fmt.Sprintf("You shattered %s, but your team was still in spawn. 🕳️", target.Mention())
+			case "landed...":
+				message = fmt.Sprintf("You landed the shatter on %s, but no one followed up. 🤨", target.Mention())
 			case "hit":
 				message = fmt.Sprintf("Your shatter hit %s! 💥🔨", target.Mention())
 			case "was blocked by":
