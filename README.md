@@ -1,4 +1,4 @@
-# LhBot
+# LhBotGo
 
 [![LhBot](https://i.gyazo.com/632f0e60dc0535128971887acad98993.png)](https://twitter.com/PetraYle)
 
