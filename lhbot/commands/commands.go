@@ -15,6 +15,7 @@ var Commands = []discord.ApplicationCommandCreate{
 	lhCloudyCommands,
 	funCommands,
 	helpCommand,
+	queueCommands,
 }
 
 type commands struct {
@@ -55,6 +56,14 @@ func New(b *lhbot.Bot) handler.Router {
 		r.SlashCommand("/cat", cmds.onCat)
 		r.SlashCommand("/dog", cmds.onDog)
 		r.SlashCommand("/meme", cmds.onMeme)
+	})
+	router.Route("/q", func(r handler.Router) {
+		r.SlashCommand("/join", cmds.onQueueJoin)
+		r.SlashCommand("/leave", cmds.onQueueLeave)
+		r.SlashCommand("/list", cmds.onQueueList)
+		r.SlashCommand("/played", cmds.onQueuePlayed)
+		r.SlashCommand("/clear", cmds.onQueueClear)
+		r.SlashCommand("/help", cmds.onQueueHelp)
 	})
 	return router
 }

@@ -33,6 +33,8 @@ func (c *commands) onHelp(data discord.SlashCommandInteractionData, e *handler.C
 
 			{Name: "/info", Value: "show bot uptime & stats", Inline: ptr(true)},
 			{Name: "/help", Value: "show this help message", Inline: ptr(true)},
+
+			{Name: "/q", Value: "Viewer Games Queue commands", Inline: ptr(false)},
 		},
 		Timestamp: ptrTime(e.CreatedAt()),
 	}
