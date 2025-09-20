@@ -149,16 +149,9 @@ func (c *commands) onGuess(data discord.SlashCommandInteractionData, e *handler.
 		}
 	}
 	if !checkGuess(guess) {
-		now := time.Now()
-		embed := discord.Embed{
-			Title:       "That is not a valid guess 🚨",
-			Description: "KEKL",
-			Color:       0xFF0000,
-			Timestamp:   &now,
-		}
 		return e.CreateMessage(discord.MessageCreate{
-			Embeds: []discord.Embed{embed},
-			Flags:  discord.MessageFlagEphemeral,
+			Content: "KEKL nice try",
+			Flags:   discord.MessageFlagEphemeral,
 		})
 	}
 
