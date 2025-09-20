@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"math/rand"
+	"regexp"
 	"strings"
 	"time"
 
@@ -151,7 +152,7 @@ func (c *commands) onGuess(data discord.SlashCommandInteractionData, e *handler.
 		now := time.Now()
 		embed := discord.Embed{
 			Title:       "That is not a valid guess 🚨",
-			Description: "You must start your guess with `L` and it cannot be a banned word.",
+			Description: "KEKL",
 			Color:       0xFF0000,
 			Timestamp:   &now,
 		}
@@ -165,7 +166,7 @@ func (c *commands) onGuess(data discord.SlashCommandInteractionData, e *handler.
 
 	guessObj := database.Guess{
 		LhGuess:   guess,
-		GuessedBy: e.Member().Member.User.Mention(),
+		GuessedBy: e.Member().Member.User.Username,
 		GuessedAt: time.Now(),
 	}
 
@@ -192,5 +193,6 @@ func cleanGuess(guess string) string {
 }
 
 func checkGuess(guess string) bool {
-	return !goaway.IsProfane(guess)
+	re := regexp.MustCompile(`\b[lL]\w*`)
+	return re.MatchString(guess) && !goaway.IsProfane(guess)
 }
