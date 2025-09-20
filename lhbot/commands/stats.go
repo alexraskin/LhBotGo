@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"log/slog"
+	"os"
 	"runtime"
 	"text/tabwriter"
 	"time"
@@ -37,7 +38,7 @@ func (c *commands) onStats(_ discord.SlashCommandInteractionData, e *handler.Com
 	w := &tabwriter.Writer{}
 	buf := &bytes.Buffer{}
 
-	guesses, err := c.Bot.Mongo.CountGuesses(c.Bot.Ctx)
+	guesses, err := c.Bot.Mongo.CountGuesses(c.Bot.Ctx, c.Bot.DBName, c.Bot.Collection)
 	if err != nil {
 		slog.Error("Error getting guesses", "error", err)
 		return e.CreateMessage(discord.MessageCreate{
@@ -45,10 +46,17 @@ func (c *commands) onStats(_ discord.SlashCommandInteractionData, e *handler.Com
 			Flags:   discord.MessageFlagEphemeral,
 		})
 	}
+	hostname, err := os.Hostname()
+	if err != nil {
+		slog.Error("Error getting hostname", "error", err)
+		hostname = "unknown"
+	}
 	w.Init(buf, 0, 4, 0, ' ', 0)
 	fmt.Fprintf(w, "```\n")
+	fmt.Fprintf(w, "Go: \t%s\n", c.Bot.Version.GoVersion)
 	fmt.Fprintf(w, "disgo: \t%s\n", disgo.Version)
-	fmt.Fprintf(w, "Go: \t%s\n", runtime.Version())
+	fmt.Fprintf(w, "LhBotGo: \t%s\n", c.Bot.Version.Version)
+	fmt.Fprintf(w, "Host: \t%s\n", hostname)
 	fmt.Fprintf(w, "Uptime: \t%s\n", getDurationString(time.Since(statsStartTime)))
 	fmt.Fprintf(w, "Memory used: \t%s / %s (%s garbage collected)\n", humanize.Bytes(stats.Alloc), humanize.Bytes(stats.Sys), humanize.Bytes(stats.TotalAlloc))
 	fmt.Fprintf(w, "Concurrent tasks: \t%s\n", humanize.Comma(int64(runtime.NumGoroutine())))

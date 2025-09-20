@@ -6,7 +6,6 @@ import (
 	"log/slog"
 	"net/http"
 	"os/signal"
-	"runtime/debug"
 	"syscall"
 	"time"
 
@@ -15,6 +14,7 @@ import (
 	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/gateway"
 
+	"github.com/alexraskin/LhBotGo/internal/ver"
 	"github.com/alexraskin/LhBotGo/lhbot"
 	"github.com/alexraskin/LhBotGo/lhbot/commands"
 	"github.com/alexraskin/LhBotGo/lhbot/database"
@@ -30,14 +30,8 @@ func main() {
 		return
 	}
 
-	version := "unknown"
-	goVersion := "unknown"
-	if info, ok := debug.ReadBuildInfo(); ok {
-		version = info.Main.Version
-		goVersion = info.GoVersion
-	}
-
-	slog.Info("Starting LhBot...", slog.String("version", version), slog.String("go_version", goVersion))
+	version := ver.Load()
+	slog.Info("Starting LhBot...", slog.String("version", version.Format()))
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
@@ -66,7 +60,7 @@ func main() {
 		Timeout: 10 * time.Second,
 	}
 
-	b := lhbot.New(cfg, version, goVersion, discord, mongoClient, httpClient, ctx)
+	b := lhbot.New(cfg, version, discord, mongoClient, httpClient, ctx)
 
 	b.Discord.AddEventListeners(commands.New(b), lhbot.MessageHandler(b), lhbot.OnReady(b))
 

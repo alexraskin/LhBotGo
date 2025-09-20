@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/alexraskin/LhBotGo/internal/ver"
 	"github.com/alexraskin/LhBotGo/lhbot/database"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
@@ -13,24 +14,26 @@ import (
 
 type Bot struct {
 	cfg        Config
-	Version    string
-	GoVersion  string
+	Version    ver.Version
 	Discord    bot.Client
 	Mongo      database.MongoClient
 	HTTPClient *http.Client
 	Ctx        context.Context
+	DBName     string
+	Collection string
 }
 
-func New(cfg Config, version string, goVersion string, discord bot.Client, mongo database.MongoClient, httpClient *http.Client, ctx context.Context) *Bot {
+func New(cfg Config, version ver.Version, discord bot.Client, mongo database.MongoClient, httpClient *http.Client, ctx context.Context) *Bot {
 
 	s := &Bot{
 		cfg:        cfg,
 		Version:    version,
-		GoVersion:  goVersion,
 		Discord:    discord,
 		Mongo:      mongo,
 		HTTPClient: httpClient,
 		Ctx:        ctx,
+		DBName:     "lhbot",
+		Collection: "lhbot_collection",
 	}
 
 	return s

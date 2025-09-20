@@ -23,11 +23,11 @@ type Guesses struct {
 }
 
 type MongoClient interface {
-	GetGuesses(ctx context.Context) ([]Guess, error)
-	AddGuess(ctx context.Context, guess Guess) error
-	CountGuesses(ctx context.Context) (int64, error)
-	GetGuess(ctx context.Context, guess string) (Guess, error)
-	GetLatestGuesses(ctx context.Context, limit int) ([]Guess, error)
+	GetGuesses(ctx context.Context, database string, collection string) ([]Guess, error)
+	AddGuess(ctx context.Context, database string, collection string, guess Guess) error
+	CountGuesses(ctx context.Context, database string, collection string) (int64, error)
+	GetGuess(ctx context.Context, database string, collection string, guess string) (Guess, error)
+	GetLatestGuesses(ctx context.Context, database string, collection string, limit int) ([]Guess, error)
 	Disconnect(ctx context.Context) error
 }
 
@@ -54,9 +54,9 @@ func New(ctx context.Context, uri string) (MongoClient, error) {
 	return &client{mongo: mongoClient}, nil
 }
 
-func (c *client) GetGuesses(ctx context.Context) ([]Guess, error) {
-	collection := c.mongo.Database("lhbot").Collection("lhbot_collection")
-	cursor, err := collection.Find(ctx, bson.M{})
+func (c *client) GetGuesses(ctx context.Context, database string, collection string) ([]Guess, error) {
+	col := c.mongo.Database(database).Collection(collection)
+	cursor, err := col.Find(ctx, bson.M{})
 	if err != nil {
 		return nil, err
 	}
@@ -68,27 +68,27 @@ func (c *client) GetGuesses(ctx context.Context) ([]Guess, error) {
 	return guesses, nil
 }
 
-func (c *client) AddGuess(ctx context.Context, guess Guess) error {
-	collection := c.mongo.Database("lhbot").Collection("lhbot_collection")
-	_, err := collection.InsertOne(ctx, guess)
+func (c *client) AddGuess(ctx context.Context, database string, collection string, guess Guess) error {
+	col := c.mongo.Database(database).Collection(collection)
+	_, err := col.InsertOne(ctx, guess)
 	return err
 }
 
-func (c *client) CountGuesses(ctx context.Context) (int64, error) {
-	collection := c.mongo.Database("lhbot").Collection("lhbot_collection")
-	return collection.CountDocuments(ctx, bson.M{})
+func (c *client) CountGuesses(ctx context.Context, database string, collection string) (int64, error) {
+	col := c.mongo.Database(database).Collection(collection)
+	return col.CountDocuments(ctx, bson.M{})
 }
 
-func (c *client) GetGuess(ctx context.Context, guess string) (Guess, error) {
-	collection := c.mongo.Database("lhbot").Collection("lhbot_collection")
+func (c *client) GetGuess(ctx context.Context, database string, collection string, guess string) (Guess, error) {
+	col := c.mongo.Database(database).Collection(collection)
 	var g Guess
-	err := collection.FindOne(ctx, bson.M{"guess": guess}).Decode(&g)
+	err := col.FindOne(ctx, bson.M{"guess": guess}).Decode(&g)
 	return g, err
 }
 
-func (c *client) GetLatestGuesses(ctx context.Context, limit int) ([]Guess, error) {
-	collection := c.mongo.Database("lhbot").Collection("lhbot_collection")
-	cursor, err := collection.Find(ctx, bson.M{}, options.Find().SetSort(bson.M{"_id": -1}).SetLimit(int64(limit)))
+func (c *client) GetLatestGuesses(ctx context.Context, database string, collection string, limit int) ([]Guess, error) {
+	col := c.mongo.Database(database).Collection(collection)
+	cursor, err := col.Find(ctx, bson.M{}, options.Find().SetSort(bson.M{"_id": -1}).SetLimit(int64(limit)))
 	if err != nil {
 		return nil, err
 	}

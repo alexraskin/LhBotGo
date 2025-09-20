@@ -10,13 +10,18 @@ COPY . .
 
 ARG TARGETOS
 ARG TARGETARCH
+ARG VERSION
+ARG COMMIT_SHA
+ARG BUILD_TIME
 
 RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg \
     CGO_ENABLED=0 \
     GOOS=$TARGETOS \
     GOARCH=$TARGETARCH \
-    go build -o lhbotgo github.com/alexraskin/LhBotGo
+    go build \
+        -ldflags="-X github.com/alexraskin/LhBotGo/internal/ver.buildVersion=$VERSION -X github.com/alexraskin/LhBotGo/internal/ver.buildCommit=$COMMIT_SHA -X github.com/alexraskin/LhBotGo/internal/ver.buildTime=$BUILD_TIME" \
+        -o lhbotgo github.com/alexraskin/LhBotGo
 
 FROM alpine
 

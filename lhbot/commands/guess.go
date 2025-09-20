@@ -65,7 +65,7 @@ func (c *commands) onHint(data discord.SlashCommandInteractionData, e *handler.C
 }
 
 func (c *commands) onLatest(data discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
-	guesses, err := c.Bot.Mongo.GetLatestGuesses(c.Bot.Ctx, 5)
+	guesses, err := c.Bot.Mongo.GetLatestGuesses(c.Bot.Ctx, c.Bot.DBName, c.Bot.Collection, 5)
 	if err != nil {
 		slog.Error("Error getting guesses", "error", err)
 		return e.CreateMessage(discord.MessageCreate{
@@ -86,7 +86,7 @@ func (c *commands) onLatest(data discord.SlashCommandInteractionData, e *handler
 }
 
 func (c *commands) onList(data discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
-	guesses, err := c.Bot.Mongo.GetGuesses(c.Bot.Ctx)
+	guesses, err := c.Bot.Mongo.GetGuesses(c.Bot.Ctx, c.Bot.DBName, c.Bot.Collection)
 	if err != nil {
 		slog.Error("Error getting guesses", "error", err)
 		return e.CreateMessage(discord.MessageCreate{
@@ -127,7 +127,7 @@ func (c *commands) onList(data discord.SlashCommandInteractionData, e *handler.C
 }
 
 func (c *commands) onCount(data discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
-	count, err := c.Bot.Mongo.CountGuesses(c.Bot.Ctx)
+	count, err := c.Bot.Mongo.CountGuesses(c.Bot.Ctx, c.Bot.DBName, c.Bot.Collection)
 	if err != nil {
 		slog.Error("Error getting guess count", "error", err)
 		return e.CreateMessage(discord.MessageCreate{
@@ -169,7 +169,7 @@ func (c *commands) onGuess(data discord.SlashCommandInteractionData, e *handler.
 		GuessedAt: time.Now(),
 	}
 
-	if err := c.Bot.Mongo.AddGuess(c.Bot.Ctx, guessObj); err != nil {
+	if err := c.Bot.Mongo.AddGuess(c.Bot.Ctx, c.Bot.DBName, c.Bot.Collection, guessObj); err != nil {
 		slog.Error("Error adding guess", "error", err)
 		return e.CreateMessage(discord.MessageCreate{
 			Content: "Error adding guess LUL",
