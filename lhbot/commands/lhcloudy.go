@@ -60,29 +60,25 @@ var lhCloudyCommands = discord.SlashCommandCreate{
 }
 
 func (c *commands) onBirthday(_ discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
-	birthday := time.Date(1999, time.May, 21, 0, 0, 0, 0, time.Local)
+	now := time.Now().UTC()
+	currentYear := now.Year()
 
-	today := time.Now()
-	currentYear := today.Year()
-
-	currentYearBirthday := time.Date(currentYear, birthday.Month(), birthday.Day(), 0, 0, 0, 0, time.Local)
-
-	nextBirthday := currentYearBirthday
-	if today.After(currentYearBirthday) {
-		nextBirthday = time.Date(currentYear+1, birthday.Month(), birthday.Day(), 0, 0, 0, 0, time.Local)
+	nextBirthday := time.Date(currentYear, time.May, 21, 0, 0, 0, 0, time.UTC)
+	if now.After(nextBirthday) {
+		nextBirthday = time.Date(currentYear+1, time.May, 21, 0, 0, 0, 0, time.UTC)
 	}
 
-	daysUntil := int(nextBirthday.Sub(today).Hours() / 24)
+	ts := nextBirthday.Unix()
 
-	if daysUntil == 0 {
+	if now.Month() == time.May && now.Day() == 21 {
 		return e.CreateMessage(discord.MessageCreate{
 			Content: "Today is Cloudy's birthday! 🎉\n\nhttps://tenor.com/bmYbD.gif",
 		})
-	} else {
-		return e.CreateMessage(discord.MessageCreate{
-			Content: fmt.Sprintf("There are %d days until Cloudy's birthday.", daysUntil),
-		})
 	}
+
+	return e.CreateMessage(discord.MessageCreate{
+		Content: fmt.Sprintf("Cloudy's next birthday is <t:%d:D> (<t:%d:R>)", ts, ts),
+	})
 }
 
 func (c *commands) onFrom(_ discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
