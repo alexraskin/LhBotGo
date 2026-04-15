@@ -1,6 +1,5 @@
 [bot]
 token = ""
-guild_ids = []
 sync_commands = true
 command_channel_ids = []
 lhcloudy_id = 0

@@ -38,23 +38,7 @@ func applyEnvOverrides(cfg *Config) {
 	if v := os.Getenv("BOT_TOKEN"); v != "" {
 		cfg.Bot.Token = v
 	}
-	if v := os.Getenv("BOT_GUILD_IDS"); v != "" {
-		var ids []snowflake.ID
-		for _, raw := range strings.Split(v, ",") {
-			raw = strings.TrimSpace(raw)
-			if raw == "" {
-				continue
-			}
-			id, err := snowflake.Parse(raw)
-			if err == nil {
-				ids = append(ids, id)
-			}
-		}
-		if len(ids) > 0 {
-			cfg.Bot.GuildIDs = ids
-		}
-	}
-	if v := os.Getenv("BOT_COMMAND_CHANNEL_IDS"); v != "" {
+if v := os.Getenv("BOT_COMMAND_CHANNEL_IDS"); v != "" {
 		var ids []snowflake.ID
 		for _, raw := range strings.Split(v, ",") {
 			raw = strings.TrimSpace(raw)
@@ -88,7 +72,6 @@ func defaultConfig() Config {
 	return Config{
 		Bot: BotConfig{
 			Token:        "",
-			GuildIDs:     nil,
 			SyncCommands: true,
 		},
 		Mongo: MongoConfig{
@@ -119,16 +102,14 @@ func (c MongoConfig) String() string {
 
 type BotConfig struct {
 	Token             string         `toml:"token"`
-	GuildIDs          []snowflake.ID `toml:"guild_ids"`
 	SyncCommands      bool           `toml:"sync_commands"`
 	CommandChannelIDs []snowflake.ID `toml:"command_channel_ids"`
 	LhCloudyID        snowflake.ID   `toml:"lhcloudy_id"`
 }
 
 func (c BotConfig) String() string {
-	return fmt.Sprintf("\n Token: %s\n GuildIDs: %s\n SyncCommands: %t",
+	return fmt.Sprintf("\n Token: %s\n SyncCommands: %t",
 		c.Token,
-		c.GuildIDs,
 		c.SyncCommands,
 	)
 }

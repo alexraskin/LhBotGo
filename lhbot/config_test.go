@@ -4,13 +4,11 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
-
-	"github.com/disgoorg/snowflake/v2"
 )
 
 func clearEnvVars(t *testing.T) {
 	t.Helper()
-	for _, key := range []string{"BOT_TOKEN", "BOT_GUILD_IDS", "BOT_SYNC_COMMANDS", "MONGO_URI"} {
+	for _, key := range []string{"BOT_TOKEN", "BOT_SYNC_COMMANDS", "MONGO_URI"} {
 		t.Setenv(key, "")
 		os.Unsetenv(key)
 	}
@@ -22,10 +20,7 @@ func TestDefaultConfig(t *testing.T) {
 	if cfg.Bot.Token != "" {
 		t.Errorf("expected empty token, got %q", cfg.Bot.Token)
 	}
-	if cfg.Bot.GuildIDs != nil {
-		t.Errorf("expected nil guild IDs, got %v", cfg.Bot.GuildIDs)
-	}
-	if !cfg.Bot.SyncCommands {
+if !cfg.Bot.SyncCommands {
 		t.Error("expected sync_commands to default to true")
 	}
 	if cfg.Mongo.URI != "mongodb://localhost:27017" {
@@ -41,7 +36,6 @@ func TestLoadConfigFromToml(t *testing.T) {
 	err := os.WriteFile(cfgPath, []byte(`
 [bot]
 token = "test-token"
-guild_ids = [123456789]
 sync_commands = false
 
 [mongo]
@@ -59,10 +53,7 @@ uri = "mongodb://testhost:27017"
 	if cfg.Bot.Token != "test-token" {
 		t.Errorf("expected token %q, got %q", "test-token", cfg.Bot.Token)
 	}
-	if len(cfg.Bot.GuildIDs) != 1 || cfg.Bot.GuildIDs[0] != 123456789 {
-		t.Errorf("expected guild ID 123456789, got %v", cfg.Bot.GuildIDs)
-	}
-	if cfg.Bot.SyncCommands {
+if cfg.Bot.SyncCommands {
 		t.Error("expected sync_commands to be false")
 	}
 	if cfg.Mongo.URI != "mongodb://testhost:27017" {
@@ -151,33 +142,6 @@ func TestApplyEnvOverrides(t *testing.T) {
 			verify: func(t *testing.T, cfg Config) {
 				if cfg.Bot.SyncCommands {
 					t.Error("expected sync_commands to be false")
-				}
-			},
-		},
-		{
-			name: "BOT_GUILD_IDS single",
-			envs: map[string]string{"BOT_GUILD_IDS": "111222333"},
-			verify: func(t *testing.T, cfg Config) {
-				if len(cfg.Bot.GuildIDs) != 1 || cfg.Bot.GuildIDs[0] != snowflake.ID(111222333) {
-					t.Errorf("expected [111222333], got %v", cfg.Bot.GuildIDs)
-				}
-			},
-		},
-		{
-			name: "BOT_GUILD_IDS multiple comma-separated",
-			envs: map[string]string{"BOT_GUILD_IDS": "111, 222, 333"},
-			verify: func(t *testing.T, cfg Config) {
-				if len(cfg.Bot.GuildIDs) != 3 {
-					t.Errorf("expected 3 guild IDs, got %d", len(cfg.Bot.GuildIDs))
-				}
-			},
-		},
-		{
-			name: "BOT_GUILD_IDS skips invalid entries",
-			envs: map[string]string{"BOT_GUILD_IDS": "111,notanumber,333"},
-			verify: func(t *testing.T, cfg Config) {
-				if len(cfg.Bot.GuildIDs) != 2 {
-					t.Errorf("expected 2 valid guild IDs, got %d: %v", len(cfg.Bot.GuildIDs), cfg.Bot.GuildIDs)
 				}
 			},
 		},

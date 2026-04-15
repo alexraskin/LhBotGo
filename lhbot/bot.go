@@ -43,7 +43,7 @@ func (b *Bot) Start(commands []discord.ApplicationCommandCreate) error {
 	if b.cfg.Bot.SyncCommands {
 		go func() {
 			slog.Info("Syncing commands")
-			if err := handler.SyncCommands(b.Discord, commands, b.cfg.Bot.GuildIDs); err != nil {
+			if err := handler.SyncCommands(b.Discord, commands, nil); err != nil {
 				slog.Error("failed to sync commands", "error", err)
 			}
 		}()
