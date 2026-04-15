@@ -3,26 +3,63 @@ package lhbot
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/BurntSushi/toml"
 	"github.com/disgoorg/snowflake/v2"
+	"github.com/joho/godotenv"
 )
 
 func LoadConfig(cfgPath string) (Config, error) {
-	file, err := os.Open(cfgPath)
-	if err != nil {
-		return Config{}, fmt.Errorf("failed to open config file: %w", err)
-	}
-	defer func() {
-		_ = file.Close()
-	}()
+	_ = godotenv.Load()
 
 	cfg := defaultConfig()
-	if _, err = toml.NewDecoder(file).Decode(&cfg); err != nil {
-		return Config{}, fmt.Errorf("failed to decode config file: %w", err)
+
+	file, err := os.Open(cfgPath)
+	if err != nil {
+		if !os.IsNotExist(err) {
+			return Config{}, fmt.Errorf("failed to open config file: %w", err)
+		}
+	} else {
+		defer func() {
+			_ = file.Close()
+		}()
+		if _, err = toml.NewDecoder(file).Decode(&cfg); err != nil {
+			return Config{}, fmt.Errorf("failed to decode config file: %w", err)
+		}
 	}
 
+	applyEnvOverrides(&cfg)
+
 	return cfg, nil
+}
+
+func applyEnvOverrides(cfg *Config) {
+	if v := os.Getenv("BOT_TOKEN"); v != "" {
+		cfg.Bot.Token = v
+	}
+	if v := os.Getenv("BOT_GUILD_IDS"); v != "" {
+		var ids []snowflake.ID
+		for _, raw := range strings.Split(v, ",") {
+			raw = strings.TrimSpace(raw)
+			if raw == "" {
+				continue
+			}
+			id, err := snowflake.Parse(raw)
+			if err == nil {
+				ids = append(ids, id)
+			}
+		}
+		if len(ids) > 0 {
+			cfg.Bot.GuildIDs = ids
+		}
+	}
+	if v := os.Getenv("BOT_SYNC_COMMANDS"); v != "" {
+		cfg.Bot.SyncCommands = v == "true" || v == "1"
+	}
+	if v := os.Getenv("MONGO_URI"); v != "" {
+		cfg.Mongo.URI = v
+	}
 }
 
 func defaultConfig() Config {
