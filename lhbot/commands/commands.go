@@ -1,12 +1,17 @@
 package commands
 
 import (
+	"sync"
+	"time"
+
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/handler"
 	"github.com/disgoorg/disgo/handler/middleware"
 
 	"github.com/alexraskin/LhBotGo/lhbot"
 )
+
+const embedColor = 0x5865F2
 
 var Commands = []discord.ApplicationCommandCreate{
 	statsCommand,
@@ -20,10 +25,16 @@ var Commands = []discord.ApplicationCommandCreate{
 
 type commands struct {
 	*lhbot.Bot
+	queue     []string
+	queueMu   sync.Mutex
+	startTime time.Time
 }
 
 func New(b *lhbot.Bot) handler.Router {
-	cmds := &commands{b}
+	cmds := &commands{
+		Bot:       b,
+		startTime: time.Now(),
+	}
 
 	router := handler.New()
 	router.Use(middleware.Go)

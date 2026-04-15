@@ -34,26 +34,3 @@ jobs:
           tags: |
             ghcr.io/alexraskin/lhbotgo:latest
             ghcr.io/alexraskin/lhbotgo:${{ github.sha }}
-  deploy:
-    needs:
-      - build-and-push-image
-    runs-on: ubuntu-latest
-    steps:
-      - name: Bypass Cloudflare for GitHub Action
-        uses: xiaotianxt/bypass-cloudflare-for-github-action@v1.1.1
-        with:
-          cf_zone_id: ${{ secrets.CF_ZONE_ID }}
-          cf_api_token: ${{ secrets.CF_API_TOKEN }}
-      - name: Deploy
-        uses: fjogeleit/http-request-action@v1
-        with:
-          url: https://swarmctl.alexraskin.com/v1/update/lhbotgo_app?image=ghcr.io/alexraskin/lhbotgo:${{ github.sha }}
-          method: POST
-          timeout: 60000
-          customHeaders: '{"Authorization": "Bearer ${{ secrets.AUTH_TOKEN }}"}'
-      - name: Shoutrrr
-        uses: containrrr/shoutrrr-action@v1
-        with:
-          url: ${{ secrets.SHOUTRRR_URL }}
-          title: Deployed lhbotgo:${{ github.sha }}
-          message: See changes at ${{ github.event.compare }}.

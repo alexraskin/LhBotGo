@@ -54,8 +54,30 @@ func applyEnvOverrides(cfg *Config) {
 			cfg.Bot.GuildIDs = ids
 		}
 	}
+	if v := os.Getenv("BOT_COMMAND_CHANNEL_IDS"); v != "" {
+		var ids []snowflake.ID
+		for _, raw := range strings.Split(v, ",") {
+			raw = strings.TrimSpace(raw)
+			if raw == "" {
+				continue
+			}
+			id, err := snowflake.Parse(raw)
+			if err == nil {
+				ids = append(ids, id)
+			}
+		}
+		if len(ids) > 0 {
+			cfg.Bot.CommandChannelIDs = ids
+		}
+	}
 	if v := os.Getenv("BOT_SYNC_COMMANDS"); v != "" {
 		cfg.Bot.SyncCommands = v == "true" || v == "1"
+	}
+	if v := os.Getenv("BOT_LHCLOUDY_ID"); v != "" {
+		id, err := snowflake.Parse(v)
+		if err == nil {
+			cfg.Bot.LhCloudyID = id
+		}
 	}
 	if v := os.Getenv("MONGO_URI"); v != "" {
 		cfg.Mongo.URI = v
@@ -96,9 +118,11 @@ func (c MongoConfig) String() string {
 }
 
 type BotConfig struct {
-	Token        string         `toml:"token"`
-	GuildIDs     []snowflake.ID `toml:"guild_ids"`
-	SyncCommands bool           `toml:"sync_commands"`
+	Token             string         `toml:"token"`
+	GuildIDs          []snowflake.ID `toml:"guild_ids"`
+	SyncCommands      bool           `toml:"sync_commands"`
+	CommandChannelIDs []snowflake.ID `toml:"command_channel_ids"`
+	LhCloudyID        snowflake.ID   `toml:"lhcloudy_id"`
 }
 
 func (c BotConfig) String() string {

@@ -127,7 +127,7 @@ func (c *commands) onInstagram(_ discord.SlashCommandInteractionData, e *handler
 	})
 }
 
-func (c *commands) onAge(data discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
+func (c *commands) onAge(_ discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
 	birthday := time.Date(1999, time.May, 21, 0, 0, 0, 0, time.Local)
 
 	today := time.Now()
@@ -138,7 +138,7 @@ func (c *commands) onAge(data discord.SlashCommandInteractionData, e *handler.Co
 	})
 }
 
-func (c *commands) onInterview(data discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
+func (c *commands) onInterview(_ discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
 	return e.CreateMessage(discord.MessageCreate{
 		Content: "https://www.youtube.com/watch?v=sM_PkcoFgM8&t=1s",
 	})
@@ -156,7 +156,7 @@ func (c *commands) onLinks(_ discord.SlashCommandInteractionData, e *handler.Com
 	embed := discord.Embed{
 		Title:       "LhCloudy Links",
 		Description: links,
-		Color:       0x5865F2,
+		Color:       embedColor,
 	}
 
 	return e.CreateMessage(discord.MessageCreate{

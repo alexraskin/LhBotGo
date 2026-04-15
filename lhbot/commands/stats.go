@@ -15,8 +15,6 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
-var statsStartTime = time.Now()
-
 var statsCommand = discord.SlashCommandCreate{
 	Name:        "stats",
 	Description: "Get some stats about the bot",
@@ -57,7 +55,7 @@ func (c *commands) onStats(_ discord.SlashCommandInteractionData, e *handler.Com
 	fmt.Fprintf(w, "disgo: \t%s\n", disgo.Version)
 	fmt.Fprintf(w, "LhBotGo: \t%s\n", c.Bot.Version.Version)
 	fmt.Fprintf(w, "Host: \t%s\n", hostname)
-	fmt.Fprintf(w, "Uptime: \t%s\n", getDurationString(time.Since(statsStartTime)))
+	fmt.Fprintf(w, "Uptime: \t%s\n", getDurationString(time.Since(c.startTime)))
 	fmt.Fprintf(w, "Memory used: \t%s / %s (%s garbage collected)\n", humanize.Bytes(stats.Alloc), humanize.Bytes(stats.Sys), humanize.Bytes(stats.TotalAlloc))
 	fmt.Fprintf(w, "Concurrent tasks: \t%s\n", humanize.Comma(int64(runtime.NumGoroutine())))
 	fmt.Fprintf(w, "Number of Guesses: \t%d\n", guesses)

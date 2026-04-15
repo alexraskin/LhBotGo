@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log/slog"
 	"math/rand"
+	"slices"
 	"strings"
-	"time"
 
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
@@ -24,9 +24,11 @@ func MessageHandler(b *Bot) bot.EventListener {
 		if strings.HasPrefix(content, "!shatter") {
 
 			if len(e.Message.Mentions) == 0 {
-				b.Discord.Rest().CreateMessage(e.Message.ChannelID, discord.MessageCreate{
+				if _, err := b.Discord.Rest().CreateMessage(e.Message.ChannelID, discord.MessageCreate{
 					Content: "You need to mention someone to shatter them! `!shatter @username`",
-				})
+				}); err != nil {
+					slog.Error("Failed to send message", "error", err)
+				}
 				return
 			}
 
@@ -40,12 +42,12 @@ func MessageHandler(b *Bot) bot.EventListener {
 				"sr peak check?",
 			}
 
-			rand.New(rand.NewSource(time.Now().UnixNano()))
-
-			if target.ID.String() == "127122091139923968" {
-				b.Discord.Rest().CreateMessage(e.Message.ChannelID, discord.MessageCreate{
+			if b.cfg.Bot.LhCloudyID != 0 && target.ID == b.cfg.Bot.LhCloudyID {
+				if _, err := b.Discord.Rest().CreateMessage(e.Message.ChannelID, discord.MessageCreate{
 					Content: lhCloudBlockMessages[rand.Intn(len(lhCloudBlockMessages))],
-				})
+				}); err != nil {
+					slog.Error("Failed to send message", "error", err)
+				}
 				return
 			}
 
@@ -70,17 +72,20 @@ func MessageHandler(b *Bot) bot.EventListener {
 				message = "You shattered no one, so it missed. Your team is now flaming you, and the enemy mercy typed MTD."
 			}
 
-			b.Discord.Rest().CreateMessage(e.Message.ChannelID, discord.MessageCreate{
+			if _, err := b.Discord.Rest().CreateMessage(e.Message.ChannelID, discord.MessageCreate{
 				Content: message,
-			})
+			}); err != nil {
+				slog.Error("Failed to send message", "error", err)
+			}
 			return
 		}
 
-		// hardcoded because i'm lazy and these are the only channels that should be used for commands
-		if (e.Message.ChannelID == 935059381802905631 || e.Message.ChannelID == 932412270565269545) && strings.HasPrefix(e.Message.Content, "!") {
-			b.Discord.Rest().CreateMessage(e.Message.ChannelID, discord.MessageCreate{
+		if slices.Contains(b.cfg.Bot.CommandChannelIDs, e.Message.ChannelID) && strings.HasPrefix(e.Message.Content, "!") {
+			if _, err := b.Discord.Rest().CreateMessage(e.Message.ChannelID, discord.MessageCreate{
 				Content: "`!shatter` is supported, but all other commands should use `/` instead",
-			})
+			}); err != nil {
+				slog.Error("Failed to send message", "error", err)
+			}
 		}
 	})
 }

@@ -50,8 +50,8 @@ var guessCommands = discord.SlashCommandCreate{
 	},
 }
 
-func (c *commands) onHint(data discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
-	var hint []string = []string{
+func (c *commands) onHint(_ discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
+	hint := []string{
 		"It is in English",
 		"Made by 10 year old finnish lad",
 		"Clever",
@@ -65,7 +65,7 @@ func (c *commands) onHint(data discord.SlashCommandInteractionData, e *handler.C
 	})
 }
 
-func (c *commands) onLatest(data discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
+func (c *commands) onLatest(_ discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
 	guesses, err := c.Bot.Mongo.GetLatestGuesses(c.Bot.Ctx, c.Bot.DBName, c.Bot.Collection, 5)
 	if err != nil {
 		slog.Error("Error getting guesses", "error", err)
@@ -86,7 +86,7 @@ func (c *commands) onLatest(data discord.SlashCommandInteractionData, e *handler
 	})
 }
 
-func (c *commands) onList(data discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
+func (c *commands) onList(_ discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
 	guesses, err := c.Bot.Mongo.GetGuesses(c.Bot.Ctx, c.Bot.DBName, c.Bot.Collection)
 	if err != nil {
 		slog.Error("Error getting guesses", "error", err)
@@ -127,7 +127,7 @@ func (c *commands) onList(data discord.SlashCommandInteractionData, e *handler.C
 	})
 }
 
-func (c *commands) onCount(data discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
+func (c *commands) onCount(_ discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
 	count, err := c.Bot.Mongo.CountGuesses(c.Bot.Ctx, c.Bot.DBName, c.Bot.Collection)
 	if err != nil {
 		slog.Error("Error getting guess count", "error", err)

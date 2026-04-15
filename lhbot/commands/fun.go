@@ -3,6 +3,7 @@ package commands
 import (
 	"encoding/json"
 	"io"
+	"net/http"
 
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/handler"
@@ -45,6 +46,13 @@ func (c *commands) onCat(_ discord.SlashCommandInteractionData, e *handler.Comma
 
 	defer resp.Body.Close()
 
+	if resp.StatusCode != http.StatusOK {
+		return e.CreateMessage(discord.MessageCreate{
+			Content: "An error occurred - KEKL",
+			Flags:   discord.MessageFlagEphemeral,
+		})
+	}
+
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return e.CreateMessage(discord.MessageCreate{
@@ -68,7 +76,7 @@ func (c *commands) onCat(_ discord.SlashCommandInteractionData, e *handler.Comma
 		Footer: &discord.EmbedFooter{
 			Text: "Powered by cataas.com",
 		},
-		Color: 0x5865F2,
+		Color: embedColor,
 	}
 
 	return e.CreateMessage(discord.MessageCreate{
@@ -91,6 +99,13 @@ func (c *commands) onDog(_ discord.SlashCommandInteractionData, e *handler.Comma
 	}
 
 	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return e.CreateMessage(discord.MessageCreate{
+			Content: "An error occurred - KEKL",
+			Flags:   discord.MessageFlagEphemeral,
+		})
+	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -115,7 +130,7 @@ func (c *commands) onDog(_ discord.SlashCommandInteractionData, e *handler.Comma
 		Footer: &discord.EmbedFooter{
 			Text: "Powered by dog.ceo",
 		},
-		Color: 0x5865F2,
+		Color: embedColor,
 	}
 
 	return e.CreateMessage(discord.MessageCreate{
@@ -146,6 +161,13 @@ func (c *commands) onMeme(_ discord.SlashCommandInteractionData, e *handler.Comm
 
 	defer resp.Body.Close()
 
+	if resp.StatusCode != http.StatusOK {
+		return e.CreateMessage(discord.MessageCreate{
+			Content: "An error occurred - KEKL",
+			Flags:   discord.MessageFlagEphemeral,
+		})
+	}
+
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return e.CreateMessage(discord.MessageCreate{
@@ -166,7 +188,7 @@ func (c *commands) onMeme(_ discord.SlashCommandInteractionData, e *handler.Comm
 		Image: &discord.EmbedResource{
 			URL: memeData.URL,
 		},
-		Color: 0x5865F2,
+		Color: embedColor,
 	}
 
 	return e.CreateMessage(discord.MessageCreate{

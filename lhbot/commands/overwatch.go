@@ -2,7 +2,6 @@ package commands
 
 import (
 	"math/rand"
-	"time"
 
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/handler"
@@ -69,8 +68,7 @@ var reinQuotes = []string{
 	"Smashing!",
 }
 
-func (c *commands) onQuote(data discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
-	rand.New(rand.NewSource(time.Now().UnixNano()))
+func (c *commands) onQuote(_ discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
 	quote := reinQuotes[rand.Intn(len(reinQuotes))]
 	return e.CreateMessage(discord.MessageCreate{
 		Content: quote,

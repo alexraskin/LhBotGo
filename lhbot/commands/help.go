@@ -15,7 +15,7 @@ var helpCommand = discord.SlashCommandCreate{
 func (c *commands) onHelp(data discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
 	embed := discord.Embed{
 		Title: "LhBot Commands",
-		Color: 0x5865F2,
+		Color: embedColor,
 		Fields: []discord.EmbedField{
 
 			{Name: "/lh guess", Value: "submit a guess", Inline: ptr(true)},

@@ -82,7 +82,7 @@ func (c *client) CountGuesses(ctx context.Context, database string, collection s
 func (c *client) GetGuess(ctx context.Context, database string, collection string, guess string) (Guess, error) {
 	col := c.mongo.Database(database).Collection(collection)
 	var g Guess
-	err := col.FindOne(ctx, bson.M{"guess": guess}).Decode(&g)
+	err := col.FindOne(ctx, bson.M{"lhguess": guess}).Decode(&g)
 	return g, err
 }
 
