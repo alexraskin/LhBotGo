@@ -11,9 +11,10 @@ import (
 	"time"
 
 	goaway "github.com/TwiN/go-away"
-	"github.com/alexraskin/LhBotGo/lhbot/database"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/handler"
+
+	"github.com/alexraskin/LhBotGo/internal/database"
 )
 
 var guessCommands = discord.SlashCommandCreate{

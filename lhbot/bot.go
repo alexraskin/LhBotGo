@@ -5,11 +5,12 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/alexraskin/LhBotGo/internal/ver"
-	"github.com/alexraskin/LhBotGo/lhbot/database"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/handler"
+
+	"github.com/alexraskin/LhBotGo/internal/database"
+	"github.com/alexraskin/LhBotGo/internal/ver"
 )
 
 type Bot struct {

@@ -14,10 +14,10 @@ import (
 	"github.com/disgoorg/disgo/cache"
 	"github.com/disgoorg/disgo/gateway"
 
+	"github.com/alexraskin/LhBotGo/internal/database"
 	"github.com/alexraskin/LhBotGo/internal/ver"
 	"github.com/alexraskin/LhBotGo/lhbot"
 	"github.com/alexraskin/LhBotGo/lhbot/commands"
-	"github.com/alexraskin/LhBotGo/lhbot/database"
 )
 
 func main() {
