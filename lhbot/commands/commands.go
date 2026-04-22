@@ -7,6 +7,7 @@ import (
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/handler"
 	"github.com/disgoorg/disgo/handler/middleware"
+	"github.com/disgoorg/snowflake/v2"
 
 	"github.com/alexraskin/LhBotGo/lhbot"
 )
@@ -25,7 +26,7 @@ var Commands = []discord.ApplicationCommandCreate{
 
 type commands struct {
 	*lhbot.Bot
-	queue     []string
+	queues    map[snowflake.ID][]string
 	queueMu   sync.Mutex
 	startTime time.Time
 }
@@ -33,6 +34,7 @@ type commands struct {
 func New(b *lhbot.Bot) handler.Router {
 	cmds := &commands{
 		Bot:       b,
+		queues:    make(map[snowflake.ID][]string),
 		startTime: time.Now(),
 	}
 

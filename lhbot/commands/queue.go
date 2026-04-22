@@ -45,24 +45,37 @@ var queueCommands = discord.SlashCommandCreate{
 	},
 }
 
+func guildOnlyMessage() discord.MessageCreate {
+	return discord.MessageCreate{Content: "The Viewer Games Queue can only be used in a server.", Flags: discord.MessageFlagEphemeral}
+}
+
 func (c *commands) onQueueJoin(_ discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
+	guildID := e.GuildID()
+	if guildID == nil {
+		return e.CreateMessage(guildOnlyMessage())
+	}
 	userID := e.User().ID.String()
 	c.queueMu.Lock()
 	defer c.queueMu.Unlock()
-	if slices.Contains(c.queue, userID) {
+	if slices.Contains(c.queues[*guildID], userID) {
 		return e.CreateMessage(discord.MessageCreate{Content: "You're already in the Viewer Games Queue."})
 	}
-	c.queue = append(c.queue, userID)
+	c.queues[*guildID] = append(c.queues[*guildID], userID)
 	return e.CreateMessage(discord.MessageCreate{Content: "You've joined the Viewer Games Queue!"})
 }
 
 func (c *commands) onQueueLeave(_ discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
+	guildID := e.GuildID()
+	if guildID == nil {
+		return e.CreateMessage(guildOnlyMessage())
+	}
 	userID := e.User().ID.String()
 	c.queueMu.Lock()
 	defer c.queueMu.Unlock()
-	for i, id := range c.queue {
+	queue := c.queues[*guildID]
+	for i, id := range queue {
 		if id == userID {
-			c.queue = slices.Delete(c.queue, i, i+1)
+			c.queues[*guildID] = slices.Delete(queue, i, i+1)
 			return e.CreateMessage(discord.MessageCreate{Content: "You have left the queue."})
 		}
 	}
@@ -70,19 +83,28 @@ func (c *commands) onQueueLeave(_ discord.SlashCommandInteractionData, e *handle
 }
 
 func (c *commands) onQueueList(_ discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
+	guildID := e.GuildID()
+	if guildID == nil {
+		return e.CreateMessage(guildOnlyMessage())
+	}
 	c.queueMu.Lock()
 	defer c.queueMu.Unlock()
-	if len(c.queue) == 0 {
+	queue := c.queues[*guildID]
+	if len(queue) == 0 {
 		return e.CreateMessage(discord.MessageCreate{Content: "Viewer Games Queue is Empty."})
 	}
 	msg := "Current Viewer Games Queue:\n"
-	for i, id := range c.queue {
+	for i, id := range queue {
 		msg += fmt.Sprintf("%d. <@%s>\n", i+1, id)
 	}
 	return e.CreateMessage(discord.MessageCreate{Content: msg})
 }
 
 func (c *commands) onQueuePlayed(data discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
+	guildID := e.GuildID()
+	if guildID == nil {
+		return e.CreateMessage(guildOnlyMessage())
+	}
 	if !e.Member().Permissions.Has(discord.PermissionModerateMembers) {
 		return e.CreateMessage(discord.MessageCreate{Content: "You don't have permission to do that.", Flags: discord.MessageFlagEphemeral})
 	}
@@ -117,9 +139,10 @@ func (c *commands) onQueuePlayed(data discord.SlashCommandInteractionData, e *ha
 	}
 	c.queueMu.Lock()
 	defer c.queueMu.Unlock()
-	for i, id := range c.queue {
+	queue := c.queues[*guildID]
+	for i, id := range queue {
 		if id == user.ID.String() {
-			c.queue = slices.Delete(c.queue, i, i+1)
+			c.queues[*guildID] = slices.Delete(queue, i, i+1)
 			return e.CreateMessage(discord.MessageCreate{Content: fmt.Sprintf("<@%s> has been marked as played and removed from the queue.", user.ID)})
 		}
 	}
@@ -127,11 +150,15 @@ func (c *commands) onQueuePlayed(data discord.SlashCommandInteractionData, e *ha
 }
 
 func (c *commands) onQueueClear(_ discord.SlashCommandInteractionData, e *handler.CommandEvent) error {
+	guildID := e.GuildID()
+	if guildID == nil {
+		return e.CreateMessage(guildOnlyMessage())
+	}
 	if !e.Member().Permissions.Has(discord.PermissionModerateMembers) {
 		return e.CreateMessage(discord.MessageCreate{Content: "You don't have permission to do that.", Flags: discord.MessageFlagEphemeral})
 	}
 	c.queueMu.Lock()
-	c.queue = nil
+	delete(c.queues, *guildID)
 	c.queueMu.Unlock()
 	return e.CreateMessage(discord.MessageCreate{Content: "Viewer Games Queue has been cleared."})
 }
